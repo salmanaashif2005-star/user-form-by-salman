@@ -1,0 +1,15 @@
+User Browser
+    ↓               (Form submission)
+React App (localhost:5173)
+    ↓ POST /api/save
+Node.js Server (localhost:3001)
+    ↓ writes to
+data.txt file
+
+User clicks "View Info"
+    ↓
+React App (localhost:5173/info)
+    ↓ GET /api/data
+Node.js Server (localhost:3001)
+    ↓ reads from
+data.txt → sends JSON → React shows it

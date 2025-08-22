@@ -1,0 +1,1217 @@
+i have created a project with crud using react , node with express and mysql .Now i want to ad logout functionality.
+
+The above images is my file structure I share my code via files.
+
+App.jsx :
+
+// // import "./App.css";
+// // import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// // import InfoPage from "./project/InfoPage";
+// // import NotesExample from "./project/NotesExample";
+// // import Navbar from "./project/Navbar"; // update path if needed
+// // import { ToastContainer } from "react-toastify";
+// // import "react-toastify/dist/ReactToastify.css";
+
+// // export default function App() {
+// //   return (
+// //     <Router>
+// //       <Navbar />
+// //       <div className="page-container" style={{ marginTop: "80px" }}>
+// //         <Routes>
+// //           <Route path="/" element={<NotesExample />} />
+// //           <Route path="/info" element={<InfoPage />} />
+// //         </Routes>
+// //       </div>
+// //       <ToastContainer position="top-right" autoClose={3000} />
+// //     </Router>
+// //   );
+// // }
+
+// import "./App.css";
+// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+// import InfoPage from "./project/InfoPage";
+// import NotesExample from "./project/NotesExample";
+// import { ToastContainer } from "react-toastify";
+// import Navbar from "./project/Navbar";
+// import { useState, useEffect } from "react";
+
+// export default function App() {
+//   const [darkMode, setDarkMode] = useState(false);
+
+//   // Toggle function
+//   const toggleTheme = () => {
+//     setDarkMode((prev) => !prev);
+//   };
+
+//   // Add/remove class to body when darkMode changes
+//   useEffect(() => {
+//     if (darkMode) {
+//       document.body.classList.add("dark-theme");
+//     } else {
+//       document.body.classList.remove("dark-theme");
+//     }
+//   }, [darkMode]);
+
+//   return (
+//     <Router>
+//       <Navbar toggleTheme={toggleTheme} darkMode={darkMode} />
+//       <div className="page-container" style={{ marginTop: "80px" }}>
+//         <Routes>
+//           <Route path="/" element={<NotesExample />} />
+//           <Route path="/info" element={<InfoPage />} />
+//         </Routes>
+//       </div>
+//       <ToastContainer position="top-right" autoClose={3000} />
+//     </Router>
+//   );
+// }
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useState, useEffect } from "react";
+import "./App.css";
+import InfoPage from "./project/InfoPage";
+import NotesExample from "./project/NotesExample";
+import Navbar from "./project/Navbar";
+import LoginPage from "./project/LoginPage"; // ⬅️ new
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function App() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem("isAuthenticated") === "true"
+  );
+
+  const toggleTheme = () => setDarkMode((prev) => !prev);
+
+  useEffect(() => {
+    if (darkMode) document.body.classList.add("dark-theme");
+    else document.body.classList.remove("dark-theme");
+  }, [darkMode]);
+
+  return (
+    <Router>
+      <Navbar toggleTheme={toggleTheme} darkMode={darkMode} />
+      <div className="page-container" style={{ marginTop: "80px" }}>
+        <Routes>
+          <Route
+            path="/login"
+            element={<LoginPage setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route path="/" element={<NotesExample />} />
+          <Route
+            path="/info"
+            element={isAuthenticated ? <InfoPage /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </div>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </Router>
+  );
+}
+
+
+App.css:
+/* App.css */
+
+/* Light Theme (default) */
+:root {
+  --bg-color: #fff;
+  --text-color: #222;
+  --primary-color: #1a3ebf;
+  --nav-bg: #f0f0f0;
+}
+
+/* Dark Theme */
+body.dark-theme {
+  --bg-color: #303133;
+  --text-color: #eee;
+  --primary-color: #4a90e2;
+  --nav-bg: #222;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: sans-serif;
+}
+
+.page-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Example for Navbar background */
+.navbar {
+  background-color: var(--nav-bg);
+  padding: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  /* add other styles you already have */
+}
+
+/* Links or buttons */
+a,
+button {
+  color: var(--primary-color);
+}
+
+NotesExample.jsx:
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./NotesExample.css";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
+
+export default function NotesExample() {
+  const location = useLocation();
+  const editingEntry = location.state?.editingEntry || null;
+  const mode = location.state?.mode || "create";
+
+  useEffect(() => {
+    document.title = mode === "edit" ? "Edit User" : "New Submission";
+  }, [mode]);
+
+  // If editing, fill the form with existing data
+  useEffect(() => {
+    if (editingEntry) {
+      setName(editingEntry.name);
+      setEmail(editingEntry.email);
+      setAge(editingEntry.age);
+      setPassword(editingEntry.password);
+      setPhone(editingEntry.phone);
+    }
+  }, [editingEntry]);
+
+  const [name, setName] = useState("");
+  const [errorName, setErrorName] = useState("");
+  const [email, setEmail] = useState("");
+  const [errorEmail, setErrorEmail] = useState("");
+  const [age, setAge] = useState("");
+  const [errorAge, setErrorAge] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorPassword, setErrorPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errorPhone, setErrorPhone] = useState("");
+  const [infoList, setInfoList] = useState([]);
+
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //     const storedNotes = localStorage.getItem("UserData");
+  //         if (storedNotes) {
+  //             setInfoList(JSON.parse(storedNotes));
+  //         }
+  //     }, []);
+
+  // useEffect(() => {
+  //     if (infoList.length > 0) {
+  //         localStorage.setItem("UserData", JSON.stringify(infoList));
+  //     }
+  // }, [infoList]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Clear previous error messages
+    setErrorName("");
+    setErrorEmail("");
+    setErrorAge("");
+    setErrorPassword("");
+    setErrorPhone("");
+
+    // Validate  placeholder=" " fields
+    if (!name || !email || !age || !password) {
+      alert("Please fill out all required fields!");
+      return;
+    }
+
+    // Validate name length
+    if (name.length > 25) {
+      setErrorName("Name must be within 25 characters.");
+      return;
+    }
+
+    // Validate email format
+    if (!email.includes("@gmail.com")) {
+      setErrorEmail("Please enter a valid Gmail address.");
+      return;
+    }
+
+    // Validate age
+    const numericAge = parseInt(age);
+    if (isNaN(numericAge) || numericAge < 18 || numericAge > 100) {
+      setErrorAge("Age must be a number between 18 and 100.");
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setErrorPassword("Password must be at least 6 characters long.");
+      return;
+    }
+
+    // Validate phone (optional)
+    if (phone && !/^\d{10}$/.test(phone)) {
+      setErrorPhone("Phone number must be exactly 10 digits.");
+      return;
+    }
+
+    // Prepare data
+    const userData = {
+      name,
+      email,
+      age: numericAge,
+      password,
+      phone,
+    };
+
+    // Check if editing an existing entry
+    if (editingEntry) {
+      // UPDATE user
+      console.log("Submitting update for:", editingEntry?.id, userData);
+      fetch(`http://localhost:3001/api/update/${editingEntry.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.message === "User updated successfully") {
+            toast.success("User updated successfully!");
+            navigate("/info");
+          } else {
+            toast.error("Failed to update user.");
+          }
+        })
+        .catch(() => toast.error("Server error during update."));
+    } else {
+      // CREATE new user
+      fetch("http://localhost:3001/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.message === "User saved successfully") {
+            setInfoList([...infoList, userData]);
+            toast.success("User saved successfully!");
+            navigate("/info");
+          } else {
+            toast.error("Failed to save user.");
+          }
+        })
+        .catch(() => toast.error("Server error during save."));
+    }
+
+    // Reset form
+    setName("");
+    setEmail("");
+    setAge("");
+    setPassword("");
+    setPhone("");
+  };
+
+  return (
+    <div className="container mt-5">
+      <div className="row">
+        <div className="col-20 col-lg-20">
+          <h3 className="mb-3">Enter your details here!</h3>
+          <form
+            className="form"
+            onSubmit={(e) => {
+              e.stopPropagation();
+              handleSubmit(e);
+            }}
+          >
+            <div className="form-group-google">
+              <input
+                type="text"
+                className="form-control"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value.trimStart())}
+                placeholder=" "
+              />
+              <label className="form-label">Enter Your Name</label>
+            </div>
+            {errorName && <p className="text-danger">{errorName}</p>}
+
+            <div className="form-group-google">
+              <input
+                type="text"
+                className="form-control"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value.trimStart())}
+                placeholder=" "
+              />
+              <label className="form-label">Enter Your Email</label>
+            </div>
+            {errorEmail && <p className="text-danger">{errorEmail}</p>}
+
+            <div className="form-group-google">
+              <input
+                type="number"
+                className="form-control"
+                id="age"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder=" "
+              />
+              <label className="form-label">Enter Your Age</label>
+            </div>
+            {errorAge && <p className="text-danger">{errorAge}</p>}
+
+            <div className="form-group-google">
+              <input
+                type="password"
+                className="form-control"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=" "
+              />
+              <label className="form-label">Enter Your Password</label>
+            </div>
+            {errorPassword && <p className="text-danger">{errorPassword}</p>}
+
+            <div className="form-group-google">
+              <input
+                type="tel"
+                className="form-control"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value?.trimStart())}
+                placeholder=" "
+              />
+              <label className="form-label">Enter your Mobile Number</label>
+            </div>
+            {errorPhone && <p className="text-danger">{errorPhone}</p>}
+            <button type="submit" className="btn btn-primary">
+              {mode === "edit" ? "Update" : "Submit"}
+            </button>
+            {mode === "edit" && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => navigate("/info")}
+              >
+                Cancel
+              </button>
+            )}
+          </form>
+
+          {/* <button className="btn btn-link mt-3" onClick={() => navigate("/info")}>
+                        View Submitted Information
+                    </button> */}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+NotesExample.css:
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
+
+p {
+  font-size: small;
+}
+
+.form-group-google {
+  height: 48px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.form-control {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: 1px solid #a1a1a1;
+  outline: none;
+  padding: 16px;
+  border-radius: 3px;
+  z-index: 1;
+}
+
+.form-label {
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  color: #a1a1a1;
+  background-color: white;
+  border-radius: 5px;
+  padding: 0 6px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.form-control:focus + .form-label {
+  top: -10px;
+  z-index: 10;
+  color: #1a3ebf;
+  font-weight: 500;
+}
+.form-control:focus {
+  border: 1px solid #1a3ebf;
+}
+
+/* Add this rule to replace the old :valid logic */
+.form-control:not(:focus):not(:placeholder-shown) + .form-label {
+  top: -10px;
+  z-index: 10;
+}
+
+.showLabel {
+  font-size: 14px;
+}
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  color: white;
+  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  border: none;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  margin-left: 10px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #6610f2, #0d6efd);
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: skewX(-20deg);
+  transition: left 0.5s;
+  z-index: 1;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary .icon {
+  margin-right: 8px;
+  transition: transform 0.5s;
+  display: inline-block;
+  z-index: 2;
+  position: relative;
+}
+
+.btn-primary:hover .icon {
+  transform: rotate(360deg);
+}
+
+.btn-primary span {
+  position: relative;
+  z-index: 2;
+}
+
+InfoPage.jsx:
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "./InfoPage.css";
+
+export default function InfoPage() {
+  const [infoList, setInfoList] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/data")
+      .then((res) => res.json())
+      .then((data) => setInfoList(data))
+      .catch((err) => console.error("Failed to load data from server:", err));
+  }, []);
+
+  // InfoPage.jsx
+  const startEditing = (entry) => {
+    navigate("/", {
+      state: {
+        editingEntry: entry,
+        mode: "edit",
+      },
+    });
+  };
+
+  const confirmEdit = (entry) => {
+    const toastId = toast.info(
+      <div>
+        Are you sure you want to edit this entry?
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => {
+              toast.dismiss(toastId);
+              startEditing(entry);
+            }}
+            style={{
+              background: "#28a745",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(toastId)}
+            style={{
+              background: "#6c757d",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        closeOnClick: false,
+        closeButton: false,
+        autoClose: false,
+        draggable: false,
+      }
+    );
+  };
+
+  const confirmDelete = (id) => {
+    const toastId = toast.info(
+      <div>
+        Are you sure you want to delete this entry?
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "10px",
+          }}
+        >
+          <button
+            onClick={() => {
+              handleRemove(id);
+              toast.dismiss(toastId);
+            }}
+            style={{
+              background: "#e63946",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Yes
+          </button>
+          <button
+            onClick={() => toast.dismiss(toastId)}
+            style={{
+              background: "#6c757d",
+              color: "white",
+              border: "none",
+              padding: "6px 12px",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            No
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        closeOnClick: false,
+        closeButton: false,
+        autoClose: false,
+        draggable: false,
+      }
+    );
+  };
+
+  const handleRemove = (id) => {
+    fetch(`http://localhost:3001/api/delete/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setInfoList(infoList.filter((entry) => entry.id !== id));
+      });
+  };
+
+  return (
+    <div className="container">
+      <h3>Your Submitted Information</h3>
+      {infoList.length === 0 ? (
+        <p>No data found.</p>
+      ) : (
+        <ul className="list-group">
+          {infoList.map((entry) => (
+            <li
+              key={entry.id}
+              className="list-group-item d-flex justify-content-between align-items-start"
+            >
+              <div>
+                <strong>Name:</strong> {entry.name} <br />
+                <strong>Mail Id:</strong> {entry.email} <br />
+                <strong>Age:</strong> {entry.age} <br />
+                <strong>Password:</strong> {entry.password} <br />
+                <strong>Mobile:</strong> {entry.phone}
+              </div>
+              <button
+                type="button"
+                className="btn btn-success btn-sm"
+                onClick={() => confirmEdit(entry)}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger btn-sm"
+                onClick={() => confirmDelete(entry.id)}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <button className="btn btn-link mt-3" onClick={() => navigate("/Login")}>
+        Logout
+      </button>
+    </div>
+  );
+}
+
+
+InfoPage.css:
+/* Container with a modern gradient background and padding */
+.container {
+  max-width: 720px;
+  margin: 50px auto;
+  padding: 30px 40px 50px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+  background: linear-gradient(135deg, #f0f4ff, #d9e3ff);
+  border-radius: 14px;
+  box-shadow: 0 15px 40px rgba(26, 115, 232, 0.3);
+  user-select: none;
+}
+
+/* Heading with subtle text shadow and uppercase */
+.container h3 {
+  font-size: 2.3rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #1a3ebf;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 6px rgba(26, 62, 191, 0.3);
+}
+
+/* No data found message */
+.container > p {
+  font-size: 1.15rem;
+  font-style: italic;
+  text-align: center;
+  color: #667799;
+  margin-top: 40px;
+}
+
+/* List group reset */
+.list-group {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Card style for each entry */
+.list-group-item {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(26, 62, 191, 0.15);
+  margin-bottom: 22px;
+  padding: 22px 28px;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+  cursor: default;
+}
+
+/* Hover effect with glowing shadow and lift */
+.list-group-item:hover {
+  box-shadow: 0 12px 28px rgba(26, 59, 177, 0.4), 0 0 10px #1a3ebf;
+  transform: translateY(-5px);
+}
+
+/* Left side data in a 2-column grid */
+.list-group-item > div {
+  display: grid;
+  text-align: start;
+  grid-template-columns: max-content auto;
+  column-gap: 18px;
+  row-gap: 10px;
+  max-width: 85%;
+  font-size: 1.1rem;
+  color: #2a2a2a;
+  font-weight: 500;
+  line-height: 1.5;
+  border-radius: 10px;
+}
+
+/* Label styling */
+.list-group-item strong {
+  color: #1a3ebf;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  user-select: text;
+}
+
+/* Value styling */
+.list-group-item > div > *:not(strong) {
+  color: #444;
+  font-weight: 400;
+}
+
+/* Remove button styling */
+.list-group-item .btn-danger {
+  background: linear-gradient(135deg, #e63946, #a4161a);
+  border: none;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(164, 22, 26, 0.45);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+  user-select: none;
+  min-width: 100px;
+}
+
+/* Remove button hover */
+.list-group-item .btn-danger:hover {
+  background: linear-gradient(135deg, #a4161a, #680c0f);
+  box-shadow: 0 10px 24px rgba(104, 12, 15, 0.7);
+  transform: scale(1.05);
+}
+
+/* Success button styling */
+.list-group-item .btn-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  border: none;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(30, 126, 52, 0.45);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+  user-select: none;
+  min-width: 100px;
+}
+
+/* Success button hover */
+.list-group-item .btn-success:hover {
+  background: linear-gradient(135deg, #1e7e34, #145c2c);
+  box-shadow: 0 10px 24px rgba(20, 92, 44, 0.7);
+  transform: scale(1.05);
+}
+
+/* Back to form button styling */
+.btn-link {
+  display: block;
+  margin: 50px auto 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a3ebf;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  width: max-content;
+  transition: border-color 0.35s ease, color 0.35s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-link:hover {
+  color: #1030a6;
+  border-color: #1a3ebf;
+  text-decoration: none;
+  outline: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 15px 40px;
+  }
+
+  .list-group-item > div {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+  }
+
+  .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .list-group-item .btn-danger {
+    width: 100%;
+    margin-top: 15px;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 20px 15px 40px;
+  }
+
+  .list-group-item > div {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+  }
+
+  .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .list-group-item .btn-danger {
+    width: 100%;
+    margin-top: 15px;
+    min-width: unset;
+  }
+  .list-group-item .btn-success {
+    width: 100%;
+    margin-top: 15px;
+    min-width: unset;
+  }
+}
+
+Navbar.jsx:
+import { Link } from "react-router-dom";
+import "./Navbar.css";
+import App from "../App";
+
+export default function Navbar({ toggleTheme, darkMode }) {
+  return (
+    <nav className="navbar">
+      <div className="nav-container">
+        <div className="nav-logo">User App</div>
+
+        <div className="nav-links">
+          <Link to="/" className="nav-link">
+            Register
+          </Link>
+          <Link to="/login" className="nav-link">
+            Login
+          </Link>
+          <Link to="/info" className="nav-link">
+            View details
+          </Link>
+        </div>
+        {/* <button
+          className="btn-theme"
+          onClick={toggleTheme}
+          style={{ float: "right" }}
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button> */}
+        <div>
+          <button className="btn-theme" onClick={toggleTheme}>
+            <span className="theme-icon">{darkMode ? "☀" : "🌙"}</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+
+Navbar.css:
+
+/* Fixed navbar styling */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(135deg, #2650e9, #153ed4);
+  padding: 15px 30px;
+  color: white;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Main container for navbar */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Logo style */
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Links container aligned to right */
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+/* Link style */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffeb3b;
+}
+
+/* .btn-theme {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+*/
+
+body:not(.dark-theme) .btn-theme {
+  background: #575858;
+  color: #f8f8f8;
+  border: 1px solid #303133;
+}
+
+body.dark-theme .btn-theme {
+  background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  color: #ff9d00;
+  border: 1px solid #303133;
+}
+.btn-theme {
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+
+.btn-theme:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.theme-icon {
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+
+.dark .theme-icon {
+  transform: rotate(180deg);
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffeb3b;
+  transform: scale(1.1);
+}
+
+.navbar {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: navbarFadeIn 0.9s ease forwards;
+}
+
+@keyframes navbarFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body,
+.navbar,
+.container,
+.form-control,
+.list-group-item {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+server.js:
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const mysql = require("mysql2");
+
+const app = express();
+const PORT = 3001;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// MySQL connection
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root", // use your MySQL username
+  password: "password", // use your MySQL password
+  database: "user_db", // the database we created earlier
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error("DB connection failed:", err);
+  } else {
+    console.log("Connected to MySQL database.");
+  }
+});
+
+// ✅ CREATE: Save new user
+app.post("/api/save", (req, res) => {
+  const { name, email, age, password, phone } = req.body;
+
+  if (!name || !email || !age || !password) {
+    return res.status(400).json({ message: "Required fields are missing" });
+  }
+
+  const sql =
+    "INSERT INTO users (name, email, age, password, phone) VALUES (?, ?, ?, ?, ?)";
+  db.query(sql, [name, email, age, password, phone], (err, result) => {
+    if (err) return res.status(500).json({ message: "Failed to insert user" });
+    res
+      .status(200)
+      .json({ message: "User saved successfully", id: result.insertId });
+  });
+});
+
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const sql = "SELECT * FROM users WHERE name = ? AND password = ?";
+  db.query(sql, [username, password], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: "Server error" });
+    }
+
+    if (results.length > 0) {
+      res.json({
+        success: true,
+        message: "Login successful",
+        user: results[0],
+      });
+    } else {
+      res
+        .status(401)
+        .json({ success: false, message: "Invalid username or password" });
+    }
+  });
+});
+
+// ✅ READ: Get all users
+app.get("/api/data", (req, res) => {
+  db.query("SELECT * FROM users", (err, results) => {
+    if (err) return res.status(500).json({ message: "Failed to fetch data" });
+    res.json(results);
+  });
+});
+
+// ✅ DELETE: Delete user by ID
+app.delete("/api/delete/:id", (req, res) => {
+  const userId = req.params.id;
+  db.query("DELETE FROM users WHERE id = ?", [userId], (err, result) => {
+    if (err) return res.status(500).json({ message: "Failed to delete user" });
+    res.json({ message: "User deleted successfully" });
+  });
+});
+
+// ✅ UPDATE: Update user by ID
+app.put("/api/update/:id", (req, res) => {
+  const userId = req.params.id;
+  console.log("Update called for ID:", userId);
+  console.log("Request body:", req.body);
+
+  const { name, email, age, password, phone } = req.body;
+  const sql =
+    "UPDATE users SET name = ?, email = ?, age = ?, password = ?, phone = ? WHERE id = ?";
+  db.query(sql, [name, email, age, password, phone, userId], (err, result) => {
+    if (err) {
+      console.error("Update failed:", err);
+      return res.status(500).json({ message: "Failed to update user" });
+    }
+    console.log("Update result:", result);
+    res.json({ message: "User updated successfully" });
+  });
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});

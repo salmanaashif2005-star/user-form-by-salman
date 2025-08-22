@@ -1,0 +1,131 @@
+/* Fixed navbar styling */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(135deg, #2650e9, #153ed4);
+  padding: 15px 30px;
+  color: white;
+  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Main container for navbar */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Logo style */
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Links container aligned to right */
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+/* Link style */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffeb3b;
+}
+
+/* .btn-theme {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+*/
+
+body:not(.dark-theme) .btn-theme {
+  background: #575858;
+  color: #f8f8f8;
+  border: 1px solid #303133;
+}
+
+body.dark-theme .btn-theme {
+  background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  color: #ff9d00;
+  border: 1px solid #303133;
+}
+.btn-theme {
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease, transform 0.2s ease;
+}
+
+.btn-theme:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.theme-icon {
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+
+.dark .theme-icon {
+  transform: rotate(180deg);
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffeb3b;
+  transform: scale(1.1);
+}
+
+.navbar {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: navbarFadeIn 0.9s ease forwards;
+}
+
+@keyframes navbarFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body,
+.navbar,
+.container,
+.form-control,
+.list-group-item {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
