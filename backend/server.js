@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -47,10 +47,10 @@ function authMiddleware(req, res, next) {
 
 // MySQL connection
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root", // use your MySQL username
-  password: "password", // use your MySQL password
-  database: "user_db", // the database we created earlier
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 db.connect((err) => {
