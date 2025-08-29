@@ -39,11 +39,12 @@ p {
 .form-control:focus + .form-label {
   top: -10px;
   z-index: 10;
-  color: #1a3ebf;
+  color: #04091b;
   font-weight: 500;
 }
 .form-control:focus {
-  border: 1px solid #1a3ebf;
+  border: 1px solid #0e0d0d;
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Add this rule to replace the old :valid logic */
@@ -55,20 +56,47 @@ p {
 .showLabel {
   font-size: 14px;
 }
+/* Fix select rendering for floating label */
+.form-group-google select.form-control {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 14px;
+  line-height: 1.5;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  color: #000; /* or your desired font color */
+}
+
+/* Optional: dropdown arrow fix */
+.form-group-google select.form-control::-ms-expand {
+  display: none;
+}
+
+/* Float the label up when a value is selected */
+.form-group-google select.form-control:not([value=""]) + .form-label {
+  top: -10px;
+  z-index: 10;
+  font-size: 14px;
+  color: #04091b;
+  font-weight: 500;
+}
 
 .btn-primary {
   position: relative;
   overflow: hidden;
   transition: all 0.4s ease;
   color: white;
-  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  background: linear-gradient(135deg, #010915, #010003);
   border: none;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   margin-left: 10px;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #6610f2, #0d6efd);
+  background: linear-gradient(135deg, #150330, #020e20);
   transform: scale(1.05);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
 }
@@ -105,4 +133,54 @@ p {
 .btn-primary span {
   position: relative;
   z-index: 2;
+}
+
+/* .btn-addremove {
+  font-size: 1.4rem;
+  padding: 4px 12px;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+} */
+
+/* Remove button styling */
+.btn-danger {
+  background: linear-gradient(135deg, #e63946, #a4161a);
+  border: none;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(164, 22, 26, 0.45);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+  user-select: none;
+  min-width: 100px;
+  color: #fff;
+}
+
+/* Remove button hover */
+.btn-danger:hover {
+  background: linear-gradient(135deg, #a4161a, #680c0f);
+  box-shadow: 0 2px 8px rgba(104, 12, 15, 0.7);
+}
+
+/* Success button styling */
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  border: none;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(30, 126, 52, 0.45);
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  font-size: 0.9rem;
+  user-select: none;
+  min-width: 100px;
+  color: #fff;
+}
+
+/* Success button hover */
+.btn-success:hover {
+  background: linear-gradient(135deg, #1e7e34, #145c2c);
+  box-shadow: 0 2px 8px rgba(20, 92, 44, 0.7);
 }

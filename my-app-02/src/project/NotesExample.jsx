@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./NotesExample.css";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Country, State, City } from "country-state-city";
 
 export default function NotesExample() {
   const location = useLocation();
@@ -11,16 +12,56 @@ export default function NotesExample() {
 
   useEffect(() => {
     document.title = mode === "edit" ? "Edit User" : "New Submission";
+    // console.log(mode, editingEntry);
   }, [mode]);
+
+  const initializeStatesAndCities = (addresses) => {
+    const statesArray = [];
+    const citiesArray = [];
+
+    addresses.forEach((addr) => {
+      if (addr.countryCode) {
+        const states = State.getStatesOfCountry(addr.countryCode);
+        statesArray.push(states);
+      } else {
+        statesArray.push([]);
+      }
+
+      if (addr.stateCode) {
+        const cities = City.getCitiesOfState(addr.countryCode, addr.stateCode);
+        citiesArray.push(cities);
+      } else {
+        citiesArray.push([]);
+      }
+    });
+
+    setAllStates(statesArray);
+    setAllCities(citiesArray);
+  };
 
   // If editing, fill the form with existing data
   useEffect(() => {
     if (editingEntry) {
+      const addrs =
+        editingEntry?.Addresses?.map((addr) => ({
+          address: addr.address || "",
+          country: addr.countryName || "", // 👈 use your DB fields
+          countryCode: addr.countryCode || "",
+          state: addr.stateName || "",
+          stateCode: addr.stateCode || "",
+          city: addr.cityName || "",
+          cityCode: addr.cityCode || "",
+          pincode: addr.pincode || "",
+        })) || [];
+
+      setAddresses(addrs);
+      setImageFile(null);
       setName(editingEntry.name);
       setEmail(editingEntry.email);
       setAge(editingEntry.age);
       setPassword(editingEntry.password);
       setPhone(editingEntry.phone);
+      initializeStatesAndCities(addrs);
     }
   }, [editingEntry]);
 
@@ -35,23 +76,24 @@ export default function NotesExample() {
   const [phone, setPhone] = useState("");
   const [errorPhone, setErrorPhone] = useState("");
   const [infoList, setInfoList] = useState([]);
-
+  const [addresses, setAddresses] = useState([
+    {
+      address: "",
+      country: "",
+      countryCode: "",
+      state: "",
+      stateCode: "",
+      city: "",
+      pincode: "",
+    },
+  ]);
+  const [pincodeErrors, setPincodeErrors] = useState(
+    Array.isArray(addresses) && addresses.map(() => "")
+  );
+  const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //     const storedNotes = localStorage.getItem("UserData");
-  //         if (storedNotes) {
-  //             setInfoList(JSON.parse(storedNotes));
-  //         }
-  //     }, []);
-
-  // useEffect(() => {
-  //     if (infoList.length > 0) {
-  //         localStorage.setItem("UserData", JSON.stringify(infoList));
-  //     }
-  // }, [infoList]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Clear previous error messages
@@ -60,10 +102,11 @@ export default function NotesExample() {
     setErrorAge("");
     setErrorPassword("");
     setErrorPhone("");
+    // setErrorPincode2("");
 
     // Validate  placeholder=" " fields
-    if (!name || !email || !age || !password) {
-      alert("Please fill out all required fields!");
+    if (!name || !email || !age || !password || !phone) {
+      toast.error("Please fill out all required fields!");
       return;
     }
 
@@ -97,6 +140,71 @@ export default function NotesExample() {
       setErrorPhone("Phone number must be exactly 10 digits.");
       return;
     }
+    // // ...existing validation...
+    const validatePincodes = () => {
+      const errors = addresses.map(({ pincode }) => {
+        if (!/^\d{6}$/.test(pincode)) {
+          return "Pincode must be exactly 6 digits";
+        }
+        return "";
+      });
+
+      setPincodeErrors(errors);
+
+      // Return true if no pincode errors
+      return errors.every((err) => err === "");
+    };
+
+    for (let i = 0; i < addresses.length; i++) {
+      const { address, country, state, city, pincode } = addresses[i];
+
+      if (!address || !pincode || !country || !state || !city) {
+        toast.error(`Please fill all fields in Address ${i + 1}`);
+        return;
+      }
+
+      // Validate pincodes separately
+      if (!validatePincodes()) {
+        return; // stop submit if pincode errors exist
+      }
+    }
+
+    let uploadedImageUrl = null;
+
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+
+      try {
+        const res = await fetch("http://localhost:3001/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        // Try to parse JSON, even on non-2xx
+        let data = null;
+        try {
+          data = await res.json();
+        } catch {
+          // Response wasn't JSON
+        }
+
+        if (!res.ok) {
+          toast.error(data?.error || `Image upload failed (${res.status})`);
+          return;
+        }
+
+        if (!data?.success) {
+          toast.error(data?.error || "Image upload failed!");
+          return;
+        }
+
+        uploadedImageUrl = data.imageUrl;
+      } catch (err) {
+        toast.error("Network error during image upload");
+        return;
+      }
+    }
 
     // Prepare data
     const userData = {
@@ -105,6 +213,14 @@ export default function NotesExample() {
       age: numericAge,
       password,
       phone,
+      imageUrl: uploadedImageUrl,
+      addresses: addresses.map((addr) => ({
+        address: addr.address,
+        country: { name: addr.country, isoCode: addr.countryCode },
+        state: { name: addr.state, isoCode: addr.stateCode },
+        city: { name: addr.city, isoCode: addr.cityCode },
+        pincode: addr.pincode,
+      })),
     };
 
     // Check if editing an existing entry
@@ -156,13 +272,136 @@ export default function NotesExample() {
     setAge("");
     setPassword("");
     setPhone("");
+    setAddresses([
+      {
+        address: "",
+        country: "",
+        countryCode: "",
+        state: "",
+        stateCode: "",
+        city: "",
+        cityCode: "",
+        pincode: "",
+      },
+    ]);
   };
+
+  const [countryList, setCountryList] = useState([]);
+  const [allStates, setAllStates] = useState([]);
+  const [allCities, setAllCities] = useState([]);
+
+  useEffect(() => {
+    setCountryList(Country.getAllCountries());
+  }, []);
+
+  const handleAddAddress = () => {
+    if (addresses.length >= 10) return;
+
+    setAddresses([
+      ...addresses,
+      {
+        address: "",
+        country: "",
+        countryCode: "",
+        state: "",
+        stateCode: "",
+        city: "",
+        cityCode: "",
+        pincode: "",
+      },
+    ]);
+
+    // Initialize empty states and cities for new address index
+    setAllStates((prev) => [...prev, []]);
+    setAllCities((prev) => [...prev, []]);
+  };
+
+  const handleAddressChange = (index, field, value) => {
+    const updated = [...addresses];
+    updated[index][field] = value;
+
+    if (field === "country") {
+      const selectedCountry = Country.getAllCountries().find(
+        (c) => c.name === value
+      );
+
+      if (selectedCountry) {
+        updated[index].country = selectedCountry.name;
+        updated[index].countryCode = selectedCountry.isoCode;
+        updated[index].state = "";
+        updated[index].stateCode = "";
+        updated[index].city = "";
+
+        const states = State.getStatesOfCountry(selectedCountry.isoCode);
+        const newAllStates = [...allStates];
+        newAllStates[index] = states;
+        setAllStates(newAllStates);
+
+        const newAllCities = [...allCities];
+        newAllCities[index] = [];
+        setAllCities(newAllCities);
+      }
+    }
+
+    if (field === "state") {
+      const selectedState = (allStates[index] || []).find(
+        (s) => s.name === value
+      );
+
+      if (selectedState) {
+        updated[index].state = selectedState.name;
+        updated[index].stateCode = selectedState.isoCode;
+        updated[index].city = "";
+
+        const cities = City.getCitiesOfState(
+          updated[index].countryCode,
+          selectedState.isoCode
+        );
+        const newAllCities = [...allCities];
+        newAllCities[index] = cities;
+        setAllCities(newAllCities);
+      }
+    }
+
+    if (field === "city") {
+      const selectedCity = (allCities[index] || []).find(
+        (c) => c.name === value
+      );
+
+      if (selectedCity) {
+        updated[index].city = selectedCity.name;
+        updated[index].cityCode = selectedCity.stateCode || ""; // some cities have stateCode
+      }
+    }
+
+    setAddresses(updated);
+  };
+
+  const handleRemoveAddress = (index) => {
+    const updated = [...addresses];
+    updated.splice(index, 1);
+    setAddresses(updated);
+  };
+  // const [imageFile, setImageFile] = useState(null);
+  // const [imageError, setImageError] = useState(""); // 👈 error state
+
+  // const handleFileChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file && file.size > 1024 * 1024) {
+  //     // 1MB = 1024 * 1024
+  //     setImageError("File size must be less than 1MB");
+  //     setImageFile(null);
+  //   } else {
+  //     setImageError("");
+  //     setImageFile(file);
+  //   }
+  // };
 
   return (
     <div className="container mt-5">
       <div className="row">
         <div className="col-20 col-lg-20">
-          <h3 className="mb-3">Enter your details here!</h3>
+          <h3 className="mb-3 form-logo">Enter your details here!</h3>
           <form
             className="form"
             onSubmit={(e) => {
@@ -170,6 +409,17 @@ export default function NotesExample() {
               handleSubmit(e);
             }}
           >
+            <div className="form-group-google">
+              <input
+                type="file"
+                accept="image/*"
+                className="form-control"
+                onChange={(e) => setImageFile(e.target.files[0])}
+              />
+              <label className="form-label">Upload Profile Picture</label>
+            </div>
+            {/* {imageError && <p className="text-danger">{imageError}</p>} */}
+
             <div className="form-group-google">
               <input
                 type="text"
@@ -234,18 +484,152 @@ export default function NotesExample() {
               <label className="form-label">Enter your Mobile Number</label>
             </div>
             {errorPhone && <p className="text-danger">{errorPhone}</p>}
-            <button type="submit" className="btn btn-primary">
-              {mode === "edit" ? "Update" : "Submit"}
-            </button>
-            {mode === "edit" && (
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => navigate("/info")}
-              >
-                Cancel
+
+            {addresses.map((addr, index) => (
+              <div key={index} className="mb-4">
+                <h5>Address {index + 1}</h5>
+
+                <div className="form-group-google">
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="address"
+                    value={addr.address}
+                    onChange={(e) =>
+                      handleAddressChange(index, "address", e.target.value)
+                    }
+                    placeholder=" "
+                  />
+                  <label className="form-label">Address Line</label>
+                </div>
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group-google">
+                      <select
+                        className="form-control"
+                        value={addr.country}
+                        onChange={(e) =>
+                          handleAddressChange(index, "country", e.target.value)
+                        }
+                      >
+                        <option value="" disabled hidden>
+                          Select Country
+                        </option>
+                        {countryList.map((country) => (
+                          <option key={country.isoCode} value={country.name}>
+                            {country.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <label className="form-label">Country</label>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group-google">
+                      <select
+                        className="form-control"
+                        value={addr.state}
+                        onChange={(e) =>
+                          handleAddressChange(index, "state", e.target.value)
+                        }
+                        disabled={!addr.country}
+                      >
+                        <option value="" disabled hidden>
+                          Select State
+                        </option>
+                        {(allStates[index] || []).map((state) => (
+                          <option key={state.isoCode} value={state.name}>
+                            {state.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <label className="form-label">State</label>
+                    </div>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="form-group-google">
+                      <select
+                        className="form-control"
+                        value={addr.city}
+                        onChange={(e) =>
+                          handleAddressChange(index, "city", e.target.value)
+                        }
+                        disabled={!addr.state}
+                      >
+                        <option value="" disabled hidden>
+                          Select City
+                        </option>
+                        {(allCities[index] || []).map((city) => (
+                          <option key={city.name} value={city.name}>
+                            {city.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <label className="form-label">City</label>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group-google">
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={addr.pincode}
+                        onChange={(e) =>
+                          handleAddressChange(index, "pincode", e.target.value)
+                        }
+                        placeholder=" "
+                      />
+                      <label className="form-label">Pincode</label>
+                    </div>
+                    {pincodeErrors[index] && (
+                      <p className="text-danger">{pincodeErrors[index]}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="d-flex justify-content-between mt-2">
+                  {addresses.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleRemoveAddress(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+
+                  {/* Show Add only on the last address block */}
+                  {index === addresses.length - 1 && addresses.length < 10 && (
+                    <button
+                      type="button"
+                      className="btn btn-success btn-sm"
+                      onClick={handleAddAddress}
+                    >
+                      New
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+            <br />
+            <div className="d-flex justify-content-center gap-2 mt-4">
+              <button type="submit" className="btn btn-primary">
+                {mode === "edit" ? "Update" : "Submit"}
               </button>
-            )}
+              {mode === "edit" && (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => navigate("/info")}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
 
           {/* <button className="btn btn-link mt-3" onClick={() => navigate("/info")}>

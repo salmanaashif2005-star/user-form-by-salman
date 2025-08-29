@@ -2,245 +2,40 @@ const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const mysql = require("mysql2");
+const sequelize = require("./db");
+
+const User = require("./models/user")(sequelize);
+const Address = require("./models/address")(sequelize);
+const uploadRoutes = require("./routes/uploadRoute");
+
+// Setup associations
+User.hasMany(Address, { foreignKey: "userId", onDelete: "CASCADE" });
+Address.belongsTo(User, { foreignKey: "userId" });
+
+const authMiddleware = require("./middleware/authMiddleware");
+const userRoutes = require("./routes/userRoutes")(
+  User,
+  Address,
+  authMiddleware
+);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-// // Unique request ID middleware
-// const { randomUUID } = require("crypto");
-// app.use((req, res, next) => {
-//   req.uniqueId = randomUUID();
-//   console.log(`Request Unique ID: ${req.uniqueId}`);
-//   next();
-// });
+app.use("/api", userRoutes);
+app.use("/api", uploadRoutes);
 
-// // Handle uncaught exceptions
-// process.on("uncaughtException", (err) => {
-//   console.error("Unhandled Exception:", err);
-// });
-
-// // Handle unhandled promise rejections
-// process.on("unhandledRejection", (reason, promise) => {
-//   console.error("Unhandled Rejection at:", promise, "reason:", reason);
-// });
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; // Expect "Bearer <token>"
-
-  if (!token) return res.status(401).json({ message: "Access denied" });
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
-    req.user = user; // attach user payload to request
-    next();
-  });
-}
-
-// MySQL connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error("DB connection failed:", err);
-  } else {
-    console.log("Connected to MySQL database.");
-  }
-});
-
-// ✅ CREATE: Save new user
-// ✅ CREATE: Save new user (with hashed password)
-app.post("/api/save", async (req, res) => {
-  const { name, email, age, password, phone } = req.body;
-
-  if (!name || !email || !age || !password) {
-    return res.status(400).json({ message: "Required fields are missing" });
-  }
-
-  try {
-    // hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const sql =
-      "INSERT INTO users (name, email, age, password, phone) VALUES (?, ?, ?, ?, ?)";
-    db.query(sql, [name, email, age, hashedPassword, phone], (err, result) => {
-      if (err)
-        return res.status(500).json({ message: "Failed to insert user" });
-
-      res.status(200).json({
-        message: "User saved successfully",
-        id: result.insertId,
-      });
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connected to MySQL with Sequelize.");
+    return sequelize.sync();
+  })
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
     });
-  } catch (error) {
-    res.status(500).json({ message: "Error saving user" });
-  }
-});
-
-// ✅ LOGIN: Verify password and return JWT
-app.post("/api/login", (req, res) => {
-  const { username, password } = req.body;
-  console.log("Unique Request ID:", req.uniqueId);
-
-  const sql = "SELECT * FROM users WHERE name = ?";
-  db.query(sql, [username], async (err, results) => {
-    if (err) return res.status(500).json({ message: "Server error" });
-
-    if (results.length === 0) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
-    }
-
-    const user = results[0];
-
-    // compare passwords
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
-    }
-
-    // generate JWT
-    const token = jwt.sign(
-      { id: user.id, name: user.name, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        role: user.role,
-      },
-    });
-  });
-});
-
-// // ✅ NEW: GET single user by ID
-// // Get single user by ID (protected)
-// app.get("/api/user/:id", authMiddleware, (req, res) => {
-//   const userId = req.params.id;
-
-//   db.query(
-//     "SELECT id, name, email, age, phone FROM users WHERE id = ?",
-//     [userId],
-//     (err, results) => {
-//       if (err) return res.status(500).json({ message: "Error fetching user" });
-//       if (results.length === 0)
-//         return res.status(404).json({ message: "User not found" });
-//       res.json(results[0]);
-//     }
-//   );
-// });
-
-// // ✅ READ: Get all users
-// // Get all users (protected)
-// app.get("/api/data", authMiddleware, (req, res) => {
-//   db.query("SELECT id, name, email, age, phone FROM users;", (err, results) => {
-//     if (err) return res.status(500).json({ message: "Failed to fetch data" });
-//     res.json(results);
-//   });
-// });
-
-// ✅ Unified GET API: single user or all users
-app.get("/api/users", authMiddleware, (req, res) => {
-  const userId = req.query.id; // e.g., /api/users?id=5
-
-  if (userId) {
-    db.query(
-      "SELECT id, name, email, age, phone FROM users WHERE id = ?",
-      [userId],
-      (err, results) => {
-        if (err)
-          return res.status(500).json({ message: "Error fetching user" });
-        if (results.length === 0)
-          return res.status(404).json({ message: "User not found" });
-        res.json(results[0]);
-      }
-    );
-  } else {
-    db.query(
-      "SELECT id, name, email, age, phone FROM users;",
-      (err, results) => {
-        if (err)
-          return res.status(500).json({ message: "Failed to fetch data" });
-        res.json(results);
-      }
-    );
-  }
-});
-
-// ✅ DELETE: Delete user by ID
-// Delete user by ID (protected)
-app.delete("/api/delete/:id", authMiddleware, (req, res) => {
-  const userId = req.params.id;
-
-  db.query("DELETE FROM users WHERE id = ?", [userId], (err, result) => {
-    if (err) return res.status(500).json({ message: "Failed to delete user" });
-    if (result.affectedRows === 0)
-      return res.status(404).json({ message: "User not found" });
-
-    res.json({ message: "User deleted successfully" });
-  });
-});
-
-// ✅ UPDATE: Update user by ID
-// Update user by ID (protected)
-app.put("/api/update/:id", authMiddleware, async (req, res) => {
-  const userId = req.params.id;
-  const { name, email, age, password, phone } = req.body;
-
-  try {
-    let sql, values;
-
-    if (password) {
-      // If password provided → hash it
-      const hashedPassword = await bcrypt.hash(password, 10);
-      sql =
-        "UPDATE users SET name = ?, email = ?, age = ?, password = ?, phone = ? WHERE id = ?";
-      values = [name, email, age, hashedPassword, phone, userId];
-    } else {
-      // If no password → update everything else
-      sql =
-        "UPDATE users SET name = ?, email = ?, age = ?, phone = ? WHERE id = ?";
-      values = [name, email, age, phone, userId];
-    }
-
-    db.query(sql, values, (err, result) => {
-      if (err) {
-        console.error("Update failed:", err);
-        return res.status(500).json({ message: "Failed to update user" });
-      }
-      if (result.affectedRows === 0)
-        return res.status(404).json({ message: "User not found" });
-
-      res.json({ message: "User updated successfully" });
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating user" });
-  }
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+  })
+  .catch((err) => console.error("Sequelize connection error:", err));

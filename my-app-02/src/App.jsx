@@ -99,24 +99,21 @@ export default function App() {
 
       <div className="page-container" style={{ marginTop: "80px" }}>
         <Routes>
-            <Route
-              path="/login"
-              element={<LoginPage setIsAuthenticated={setIsAuthenticated} />}
-            />
-            <Route
-              path="/"
-              element={
-                isAuthenticated ? <Navigate to="/info" /> : <NotesExample />
-              }
-            />
-            <Route
-              path="/edit"
-              element={<NotesExample />}
-            />
-            <Route
-              path="/info"
-              element={isAuthenticated ? <InfoPage /> : <Navigate to="/login" />}
-            />
+          <Route
+            path="/login"
+            element={<LoginPage setIsAuthenticated={setIsAuthenticated} />}
+          />
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? <Navigate to="/info" /> : <NotesExample />
+            }
+          />
+          <Route path="/edit" element={<NotesExample />} />
+          <Route
+            path="/info"
+            element={isAuthenticated ? <InfoPage /> : <Navigate to="/login" />}
+          />
         </Routes>
       </div>
       <ToastContainer position="top-right" autoClose={3000} />

@@ -39,20 +39,15 @@ export default function InfoPage() {
   // }, []);
   useEffect(() => {
     const userId = localStorage.getItem("userId");
-    const role = localStorage.getItem("userRole");
     const token = localStorage.getItem("token");
 
-    let url = "http://localhost:3001/api/users"; // default → all users (for admin)
-    if (role !== "admin" && userId) {
-      url = `http://localhost:3001/api/users?id=${userId}`; // specific user
-    }
-
-    fetch(url, {
-      method: "GET",
+    fetch("http://localhost:3001/api/users", {
+      method: "POST",
       headers: {
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ id: userId }), // send userId in body
     })
       .then((res) => res.json())
       .then((data) => {
@@ -64,12 +59,12 @@ export default function InfoPage() {
 
   // InfoPage.jsx
   const startEditing = (entry) => {
-      navigate("/edit", {
-        state: {
-          editingEntry: entry,
-          mode: "edit",
-        },
-      });
+    navigate("/edit", {
+      state: {
+        editingEntry: entry,
+        mode: "edit",
+      },
+    });
   };
 
   const confirmEdit = (entry) => {
@@ -202,28 +197,70 @@ export default function InfoPage() {
           {infoList.map((entry) => (
             <li
               key={entry.id}
-              className="list-group-item d-flex justify-content-between align-items-start"
+              className="list-group-item d-flex flex-column align-items-start"
             >
-              <div>
-                <strong>Name:</strong> {entry.name} <br />
-                <strong>Mail Id:</strong> {entry.email} <br />
-                <strong>Age:</strong> {entry.age} <br />
-                <strong>Mobile:</strong> {entry.phone}
+              {/* Top: Two columns */}
+              <div style={{ display: "flex", width: "100%" }}>
+                {/* Left: Image */}
+                <div
+                  style={{
+                    flex: "0 0 120px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "10px",
+                  }}
+                >
+                  <img
+                    src={entry.imageUrl || "/default-user.png"}
+                    alt="User"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                      borderRadius: "12px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                      background: "#eee",
+                    }}
+                  />
+                </div>
+                {/* Right: Details */}
+                <div style={{ flex: 1, padding: "18px 0" }}>
+                  <div>
+                    <strong>Name:</strong> {entry.name} <br />
+                    <strong>Mail Id:</strong> {entry.email} <br />
+                    <strong>Age:</strong> {entry.age} <br />
+                    <strong>Mobile:</strong> {entry.phone}
+                  </div>
+                </div>
               </div>
-              <button
-                type="button"
-                className="btn btn-success btn-sm"
-                onClick={() => confirmEdit(entry)}
+              <div
+                className="button-group"
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  gap: "10px",
+                  marginTop: "18px",
+                  marginLeft: "30px",
+                }}
               >
-                Edit
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-sm"
-                onClick={() => confirmDelete(entry.id)}
-              >
-                Remove
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-success btn-sm"
+                  style={{ flex: 1 }}
+                  onClick={() => confirmEdit(entry)}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger btn-sm"
+                  style={{ flex: 1 }}
+                  onClick={() => confirmDelete(entry.id)}
+                >
+                  Remove
+                </button>
+              </div>
             </li>
           ))}
         </ul>
