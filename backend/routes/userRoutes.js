@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+const { logActivity } = require("../activityLogger"); // ✅ import correctly
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -66,6 +67,12 @@ module.exports = (User, Address, authMiddleware) => {
           userId: user.id,
         });
       }
+      await logActivity(
+        user.id,
+        "create_user",
+        { name: user.name },
+        "user-management"
+      );
 
       res.status(200).json({ message: "User saved successfully", id: user.id });
     } catch (error) {
@@ -92,6 +99,7 @@ module.exports = (User, Address, authMiddleware) => {
         JWT_SECRET,
         { expiresIn: "1h" }
       );
+      await logActivity(user.id, "login", {}, "user-management");
       res.json({
         success: true,
         message: "Login successful",
@@ -125,6 +133,12 @@ module.exports = (User, Address, authMiddleware) => {
                 include: [{ model: Address }],
               }),
             ];
+      await logActivity(
+        id,
+        "fetch_users",
+        { count: users.length },
+        "user-management"
+      );
       res.json(users);
     } catch (error) {
       res.status(500).json({ message: "Error fetching user(s)" });
@@ -137,6 +151,7 @@ module.exports = (User, Address, authMiddleware) => {
     try {
       const deleted = await User.destroy({ where: { id: userId } });
       if (!deleted) return res.status(404).json({ message: "User not found" });
+      await logActivity(userId, "delete_user", {}, "user-management");
       res.json({ message: "User deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete user" });
@@ -196,7 +211,7 @@ module.exports = (User, Address, authMiddleware) => {
           userId,
         });
       }
-
+      await logActivity(userId, "update_user", updateData, "user-management");
       res.json({ message: "User updated successfully" });
     } catch (error) {
       res.status(500).json({ message: "Error updating user" });

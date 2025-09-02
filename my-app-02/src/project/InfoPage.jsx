@@ -184,6 +184,7 @@ export default function InfoPage() {
       .then((res) => res.json())
       .then(() => {
         setInfoList(infoList.filter((entry) => entry.id !== id));
+        toast.success("Entry removed successfully");
       });
   };
 
@@ -195,59 +196,62 @@ export default function InfoPage() {
       ) : (
         <ul className="list-group">
           {infoList.map((entry) => (
-            <li
-              key={entry.id}
-              className="list-group-item d-flex flex-column align-items-start"
-            >
+            <li key={entry.id} className="list-group-item">
               {/* Top: Two columns */}
-              <div style={{ display: "flex", width: "100%" }}>
+              <div
+                /*style={{ display: "flex", width: "100%" }}*/ className="info-content"
+              >
                 {/* Left: Image */}
                 <div
-                  style={{
-                    flex: "0 0 120px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "10px",
-                  }}
+                  className="info-image"
+                  // style={{
+                  //   flex: "0 0 120px",
+                  //   display: "flex",
+                  //   alignItems: "center",
+                  //   justifyContent: "center",
+                  //   padding: "10px",
+                  // }}
                 >
                   <img
                     src={entry.imageUrl || "/default-user.png"}
                     alt="User"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                      borderRadius: "12px",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                      background: "#eee",
-                    }}
+
+                    // style={{
+                    //   width: "120px",
+                    //   height: "120px",
+                    //   objectFit: "cover",
+                    //   borderRadius: "12px",
+                    //   boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                    //   background: "#eee",
+                    // }}
                   />
                 </div>
                 {/* Right: Details */}
-                <div style={{ flex: 1, padding: "18px 0" }}>
-                  <div>
-                    <strong>Name:</strong> {entry.name} <br />
-                    <strong>Mail Id:</strong> {entry.email} <br />
-                    <strong>Age:</strong> {entry.age} <br />
-                    <strong>Mobile:</strong> {entry.phone}
-                  </div>
+                <div
+                  /*style={{ flex: 1, padding: "18px 0" }} */ className="info-details"
+                >
+                  {/* <div> */}
+                  <strong>Name:</strong> {entry.name} <br />
+                  <strong>Mail Id:</strong> {entry.email} <br />
+                  <strong>Age:</strong> {entry.age} <br />
+                  <strong>Mobile:</strong> {entry.phone}
+                  {/* </div> */}
                 </div>
               </div>
               <div
                 className="button-group"
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  gap: "10px",
-                  marginTop: "18px",
-                  marginLeft: "30px",
-                }}
+                // style={{
+                //   width: "100%",
+                //   display: "flex",
+                //   gap: "10px",
+                //   marginTop: "18px",
+                //   // marginLeft: "30px",
+                // }}
               >
                 <button
                   type="button"
                   className="btn btn-success btn-sm"
-                  style={{ flex: 1 }}
+                  // style={{ flex: 1 }}
                   onClick={() => confirmEdit(entry)}
                 >
                   Edit
@@ -255,7 +259,7 @@ export default function InfoPage() {
                 <button
                   type="button"
                   className="btn btn-danger btn-sm"
-                  style={{ flex: 1 }}
+                  // style={{ flex: 1 }}
                   onClick={() => confirmDelete(entry.id)}
                 >
                   Remove

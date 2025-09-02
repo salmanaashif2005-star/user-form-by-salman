@@ -1,48 +1,159 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap"); /* App.css */
 
-/* Light Theme (default) */
+/* ---------- THEME VARIABLES ---------- */
 :root {
-  --bg-color: #fff;
-  --text-color: #222;
+  --bg-color: #ffffff;
+  --text-color: #222222;
+  --input-label-color: #a1a1a1;
+  --showpassword-label-color: #444648;
   --primary-color: #1a3ebf;
-  --nav-bg: #f0f0f0;
+  --nav-bg: white;
+  --container-bg: #ffffff;
+  --card-bg: #fafafa;
+  --input-bg: #ffffff;
+  --border-color: #dddddd;
+  --button-success: linear-gradient(135deg, #28a745, #1e7e34);
+  --button-remove: linear-gradient(135deg, #e63946, #a4161a);
 }
 
-/* Dark Theme */
+/* Dark theme variables when body has .dark-theme */
 body.dark-theme {
-  --bg-color: #303133;
-  --text-color: #eee;
+  --bg-color: #1e1f22; /* page background */
+  --text-color: #e6e6e6; /* main text */
+  --input-label-color: #a1a1a1;
+  --showpassword-label-color: #e6e6e6;
   --primary-color: #4a90e2;
-  --nav-bg: #222;
+  --nav-bg: #2a2b2d;
+  --container-bg: #2c2d2f;
+  --card-bg: #333436;
+  --input-bg: #2b2c2d;
+  --border-color: #444648;
+  --button-success: linear-gradient(135deg, #1e7e34, #145c2c);
+  --button-remove: linear-gradient(135deg, #a4161a, #680c0f);
 }
 
+/* ---------- GLOBAL BASE ---------- */
 body {
-  margin: 0;
-  padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
 }
 
-.page-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* page containers */
+.page-container,
+.container {
+  background-color: transparent; /* keep container transparent so body bg shows through,
+                                     or if you want boxed, use var(--container-bg) */
+  color: var(--text-color);
 }
 
-/* Example for Navbar background */
-.navbar {
-  background-color: var(--nav-bg);
-  padding: 1rem;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  /* add other styles you already have */
+/* generic card / list item surfaces */
+
+.list-group-item {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  /* border: 1px solid var(--border-color); */
+  /* transition: background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease; */
 }
 
-/* Links or buttons */
-a,
-button {
-  color: var(--primary-color);
+.info-content,
+.info-details,
+.info-image {
+  /* background-color: var(--card-bg); */
+  color: var(--text-color) !important;
+}
+.info-details strong {
+  color: var(--text-color) !important;
+}
+.button-group .btn-success {
+  background: var(--button-success) !important;
+}
+.button-group .btn-remove {
+  background: var(--button-remove) !important;
+}
+
+/* navbar */
+.navbar,
+.navbar .nav-container,
+.sidebar,
+.nav-logo {
+  background-color: var(--nav-bg) !important;
+  color: var(--text-color) !important;
+}
+.navbar .nav-link:hover {
+  background-color: var(--border-color) !important;
+}
+
+/* links/buttons inside navbar */
+.navbar .nav-link,
+.sidebar .nav-link,
+.nav-logo,
+.navbar .btn,
+.navbar .navbar-toggle,
+.close-btn {
+  color: var(--text-color) !important;
+}
+
+/* forms */
+
+.form-label {
+  background-color: var(--input-bg) !important;
+  color: var(--input-label-color) !important;
+  box-shadow: none !important;
+}
+.show-password-checkbox label {
+  color: var(--showpassword-label-color) !important;
+}
+.upload-placeholder {
+  color: var(--text-color) !important;
+}
+.upload-label,
+.container,
+.container h3,
+.select-input {
+  background-color: var(--input-bg) !important;
+  color: var(--text-color) !important;
+}
+.unselect-input {
+  background-color: transparent !important;
+  color: var(--text-color) !important;
+}
+
+/* focus  */
+.form-control:focus,
+.form-select:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--text-color) !important;
+  /* box-shadow: 0 0 0 0.15rem rgba(74, 144, 226, 0.12) !important; */
+}
+
+/* buttons */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+/* Override bg-* / text-* utility classes when in dark theme */
+body.dark-theme .bg-light {
+  background-color: var(--card-bg) !important;
+}
+body.dark-theme .text-dark {
+  color: var(--text-color) !important;
+}
+
+/* small helpers */
+.upload-preview {
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* keep transitions smooth */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
 }

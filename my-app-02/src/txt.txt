@@ -1215,3 +1215,21 @@ app.put("/api/update/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+
+__________________________________________________________
+|                          |                             |
+|                          |                             |
+|      *Image upload       |                             |
+|      |                   |                             |
+|      |                   |                             |
+|      |                   |                             |
+|      |                   |         All                 |
+|      *details            |           my                |
+|      |                   |             forms           |
+|      |                   |                             |
+|      |                   |                             |
+|      |                   |                             |
+|      *address            |                             |
+|                          |                             |
+|                          |                             |
+|__________________________|_____________________________|

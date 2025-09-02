@@ -90,7 +90,7 @@ export default function NotesExample() {
   const [pincodeErrors, setPincodeErrors] = useState(
     Array.isArray(addresses) && addresses.map(() => "")
   );
-  const [imageFile, setImageFile] = useState(null);
+  // const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -181,20 +181,9 @@ export default function NotesExample() {
           body: formData,
         });
 
-        // Try to parse JSON, even on non-2xx
-        let data = null;
-        try {
-          data = await res.json();
-        } catch {
-          // Response wasn't JSON
-        }
+        const data = await res.json();
 
-        if (!res.ok) {
-          toast.error(data?.error || `Image upload failed (${res.status})`);
-          return;
-        }
-
-        if (!data?.success) {
+        if (!res.ok || !data?.success) {
           toast.error(data?.error || "Image upload failed!");
           return;
         }
@@ -285,7 +274,7 @@ export default function NotesExample() {
       },
     ]);
   };
-
+  const [showPassword, setShowPassword] = useState(false);
   const [countryList, setCountryList] = useState([]);
   const [allStates, setAllStates] = useState([]);
   const [allCities, setAllCities] = useState([]);
@@ -382,24 +371,47 @@ export default function NotesExample() {
     updated.splice(index, 1);
     setAddresses(updated);
   };
-  // const [imageFile, setImageFile] = useState(null);
-  // const [imageError, setImageError] = useState(""); // 👈 error state
+  const [imageFile, setImageFile] = useState(null);
+  const [imageError, setImageError] = useState(""); // 👈 error state
 
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file && file.size > 1024 * 1024) {
-  //     // 1MB = 1024 * 1024
-  //     setImageError("File size must be less than 1MB");
-  //     setImageFile(null);
-  //   } else {
-  //     setImageError("");
-  //     setImageFile(file);
-  //   }
-  // };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > 1024 * 1024) {
+      // 1MB = 1024 * 1024
+      setImageError("File size must be less than 1MB");
+      setImageFile(null);
+    } else {
+      setImageError("");
+      setImageFile(file);
+    }
+  };
 
   return (
     <div className="container mt-5">
       <div className="row">
+        {/* <div className="col-md-4 col-lg-3 progress-tracker">
+          <ul className="steps">
+            <li className={imageFile ? "completed" : ""}>📸 Upload Image</li>
+            <li
+              className={
+                name && email && age && password && phone ? "completed" : ""
+              }
+            >
+              📝 User Details
+            </li>
+            <li
+              className={
+                addresses.some(
+                  (addr) => addr.address && addr.city && addr.pincode
+                )
+                  ? "completed"
+                  : ""
+              }
+            >
+              📍 Address
+            </li>
+          </ul>
+        </div> */}
         <div className="col-20 col-lg-20">
           <h3 className="mb-3 form-logo">Enter your details here!</h3>
           <form
@@ -409,21 +421,53 @@ export default function NotesExample() {
               handleSubmit(e);
             }}
           >
-            <div className="form-group-google">
+            {/* <div className="form-group-google"> */}
+            <div className="upload-wrapper">
+              <label htmlFor="file-upload" className="upload-label">
+                {imageFile ? (
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt="Profile Preview"
+                    className="upload-preview"
+                  />
+                ) : (
+                  // <span className="upload-placeholder">
+                  //   Your Picture uploaded!
+                  // </span>
+                  //  <span className="upload-selected">📂 {imageFile.name}</span>
+
+                  <span className="upload-placeholder">
+                    +<br />
+                    Upload Profile Picture
+                  </span>
+                )}
+              </label>
               <input
+                id="file-upload"
                 type="file"
                 accept="image/*"
-                className="form-control"
-                onChange={(e) => setImageFile(e.target.files[0])}
+                className="upload-input"
+                onChange={handleFileChange}
               />
-              <label className="form-label">Upload Profile Picture</label>
-            </div>
-            {/* {imageError && <p className="text-danger">{imageError}</p>} */}
+              {imageError && <p className="text-danger">{imageError}</p>}
 
+              {imageFile && (
+                <button
+                  type="button"
+                  className=" btn-image-remove "
+                  onClick={() => setImageFile(null)}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+
+            {/* </div> */}
+            {/* {imageError && <p className="text-danger">{imageError}</p>} */}
             <div className="form-group-google">
               <input
                 type="text"
-                className="form-control"
+                className="form-control unselect-input"
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value.trimStart())}
@@ -432,11 +476,10 @@ export default function NotesExample() {
               <label className="form-label">Enter Your Name</label>
             </div>
             {errorName && <p className="text-danger">{errorName}</p>}
-
             <div className="form-group-google">
               <input
                 type="text"
-                className="form-control"
+                className="form-control unselect-input"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value.trimStart())}
@@ -445,11 +488,10 @@ export default function NotesExample() {
               <label className="form-label">Enter Your Email</label>
             </div>
             {errorEmail && <p className="text-danger">{errorEmail}</p>}
-
             <div className="form-group-google">
               <input
                 type="number"
-                className="form-control"
+                className="form-control unselect-input"
                 id="age"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
@@ -458,11 +500,10 @@ export default function NotesExample() {
               <label className="form-label">Enter Your Age</label>
             </div>
             {errorAge && <p className="text-danger">{errorAge}</p>}
-
             <div className="form-group-google">
               <input
-                type="password"
-                className="form-control"
+                type={showPassword ? "text" : "password"}
+                className="form-control unselect-input"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -471,20 +512,29 @@ export default function NotesExample() {
               <label className="form-label">Enter Your Password</label>
             </div>
             {errorPassword && <p className="text-danger">{errorPassword}</p>}
-
+            {/* Checkbox for show/hide password */}
+            <div className="show-password-checkbox">
+              <input
+                type="checkbox"
+                id="showPassword"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+              />
+              <label htmlFor="showPassword"> Show Password</label>
+            </div>
             <div className="form-group-google">
               <input
                 type="tel"
-                className="form-control"
+                className="form-control unselect-input"
                 id="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value?.trimStart())}
                 placeholder=" "
               />
-              <label className="form-label">Enter your Mobile Number</label>
+              <label className="form-label">Enter your Mobile</label>
             </div>
             {errorPhone && <p className="text-danger">{errorPhone}</p>}
-
+            <br />
             {addresses.map((addr, index) => (
               <div key={index} className="mb-4">
                 <h5>Address {index + 1}</h5>
@@ -492,7 +542,7 @@ export default function NotesExample() {
                 <div className="form-group-google">
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control unselect-input"
                     id="address"
                     value={addr.address}
                     onChange={(e) =>
@@ -506,7 +556,7 @@ export default function NotesExample() {
                   <div className="col-md-6">
                     <div className="form-group-google">
                       <select
-                        className="form-control"
+                        className="form-control select-input"
                         value={addr.country}
                         onChange={(e) =>
                           handleAddressChange(index, "country", e.target.value)
@@ -528,7 +578,7 @@ export default function NotesExample() {
                   <div className="col-md-6">
                     <div className="form-group-google">
                       <select
-                        className="form-control"
+                        className="form-control select-input"
                         value={addr.state}
                         onChange={(e) =>
                           handleAddressChange(index, "state", e.target.value)
@@ -553,7 +603,7 @@ export default function NotesExample() {
                   <div className="col-md-6">
                     <div className="form-group-google">
                       <select
-                        className="form-control"
+                        className="form-control select-input"
                         value={addr.city}
                         onChange={(e) =>
                           handleAddressChange(index, "city", e.target.value)
@@ -577,7 +627,7 @@ export default function NotesExample() {
                     <div className="form-group-google">
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control unselect-input"
                         value={addr.pincode}
                         onChange={(e) =>
                           handleAddressChange(index, "pincode", e.target.value)
@@ -595,21 +645,20 @@ export default function NotesExample() {
                   {addresses.length > 1 && (
                     <button
                       type="button"
-                      className="btn btn-danger btn-sm"
+                      className="btn  btn-sm"
                       onClick={() => handleRemoveAddress(index)}
                     >
-                      Remove
+                      🗑️
                     </button>
                   )}
-
                   {/* Show Add only on the last address block */}
                   {index === addresses.length - 1 && addresses.length < 10 && (
                     <button
                       type="button"
-                      className="btn btn-success btn-sm"
+                      className="btn  btn-sm fixed-plus-btn"
                       onClick={handleAddAddress}
                     >
-                      New
+                      ➕
                     </button>
                   )}
                 </div>

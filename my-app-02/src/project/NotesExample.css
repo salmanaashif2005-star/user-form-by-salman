@@ -143,44 +143,132 @@ p {
   cursor: pointer;
 } */
 
-/* Remove button styling */
-.btn-danger {
-  background: linear-gradient(135deg, #e63946, #a4161a);
+.upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px; /* add spacing from next fields */
+}
+
+.upload-label {
+  width: 100px; /* bigger circle */
+  height: 100px;
+  border-radius: 50%;
+  border: 2px dashed #aaa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.2s;
+  background-color: #f9f9f9; /* subtle bg */
+}
+
+.upload-label:hover {
+  border-color: #007bff;
+
+  /* transform: scale(1.05); */
+}
+
+.upload-placeholder {
+  font-size: 12px;
+  padding: 5px;
+  color: #888;
+  line-height: 1;
+  text-align: center;
+}
+
+.upload-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-input {
+  display: none;
+}
+/* #e74c3c */
+.btn-image-remove {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  background-color: #e74c3c;
+  color: white;
   border: none;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(164, 22, 26, 0.45);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-  font-size: 0.9rem;
-  user-select: none;
-  min-width: 100px;
-  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.btn-image-remove:hover {
+  background-color: #c0392b;
+}
+/* .upload-selected {
+  font-size: 0.5rem;
+  color: #333;
+  text-align: center;
+  word-break: break-word;
+} */
+
+.fixed-plus-btn {
+  margin-left: auto; /* push it to the right inside flex */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Remove button hover */
-.btn-danger:hover {
-  background: linear-gradient(135deg, #a4161a, #680c0f);
-  box-shadow: 0 2px 8px rgba(104, 12, 15, 0.7);
+/* Checkbox container */
+.show-password-checkbox {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
 }
 
-/* Success button styling */
-.btn-success {
-  background: linear-gradient(135deg, #28a745, #1e7e34);
-  border: none;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(30, 126, 52, 0.45);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-  font-size: 0.9rem;
-  user-select: none;
-  min-width: 100px;
-  color: #fff;
+.show-password-checkbox input[type="checkbox"] {
+  cursor: pointer;
 }
 
-/* Success button hover */
-.btn-success:hover {
-  background: linear-gradient(135deg, #1e7e34, #145c2c);
-  box-shadow: 0 2px 8px rgba(20, 92, 44, 0.7);
+.show-password-checkbox label {
+  cursor: pointer;
+  line-height: 1.5px;
+}
+
+.progress-tracker {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  min-height: 100%;
+}
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.steps li {
+  margin: 20px 0;
+  padding: 10px;
+  border-left: 4px solid #ccc;
+  font-size: 16px;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.steps li.completed {
+  border-left-color: #28a745;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.steps li::before {
+  content: "• ";
+  font-size: 20px;
 }

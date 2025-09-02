@@ -116,7 +116,11 @@ export default function App() {
           />
         </Routes>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        theme={darkMode ? "dark" : "light"}
+      />
     </Router>
   );
 }

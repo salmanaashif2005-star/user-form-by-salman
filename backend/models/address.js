@@ -13,7 +13,7 @@ module.exports = (sequelize) =>
       stateCode: { type: DataTypes.STRING, allowNull: false },
 
       cityName: { type: DataTypes.STRING, allowNull: false },
-      cityCode: { type: DataTypes.STRING, allowNull: true }, // optional
+      cityCode: { type: DataTypes.STRING, allowNull: false }, // optional
 
       pincode: { type: DataTypes.STRING, allowNull: false },
       userId: { type: DataTypes.INTEGER, allowNull: false },

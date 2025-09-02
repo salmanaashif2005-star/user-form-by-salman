@@ -1,20 +1,19 @@
-/* Container with a modern gradient background and padding */
+/* Container */
 .container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 30px auto;
   padding: 30px 40px 50px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #222;
-  background: white;
+  background: #fff;
   border-radius: 14px;
-  /* box-shadow: 0 15px 40px rgba(26, 115, 232, 0.3); */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   user-select: none;
 }
 
-/* Heading with subtle text shadow and uppercase */
+/* Heading */
 .container h3 {
-  font-size: 2.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 30px;
   text-align: center;
@@ -24,13 +23,113 @@
   text-shadow: 0 2px 6px rgba(26, 62, 191, 0.3);
 }
 
-@media (max-width: 660px) {
+@media (max-width: 570px) {
   .container h3 {
     font-size: 1.3rem;
   }
 }
 
-/* No data found message */
+.list-group-item + .list-group-item {
+  margin-top: 22px; /* ensures visible gap */
+}
+
+/* Reset list */
+.list-group {
+  padding: 22px 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Card style for each entry */
+.list-group-item {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 22px 22px;
+  border-radius: 12px;
+  margin-bottom: 22px;
+  background: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 6px 18px rgba(64, 65, 68, 0.15);
+}
+
+/* Container for image + details */
+.info-content {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Image */
+.info-image img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: #eee;
+  flex-shrink: 0;
+}
+
+/* Details */
+.info-details {
+  flex: 1;
+  font-size: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+.info-details strong {
+  display: inline-block;
+  min-width: 80px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: black;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  justify-content: space-around; /* ✅ pushes one left, one right */
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.button-group button {
+  min-width: 80px; /* keep them readable */
+  padding: 10px 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  flex: 0; /* ✅ don't stretch equally */
+}
+
+/* Success button */
+.btn-success {
+  background: var(--button-success);
+}
+.btn-success:hover {
+  box-shadow: 0 2px 8px rgba(30, 126, 52, 0.45);
+  /* box-shadow: 0 2px 8px rgba(20, 92, 44, 0.7); */
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--button-remove);
+}
+.btn-danger:hover {
+  box-shadow: 0 2px 8px rgba(164, 22, 26, 0.45);
+
+  /* box-shadow: 0 2px 8px rgba(104, 12, 15, 0.7); */
+}
+
+/* No data message */
 .container > p {
   font-size: 1.15rem;
   font-style: italic;
@@ -39,173 +138,28 @@
   margin-top: 40px;
 }
 
-/* List group reset */
-.list-group {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-/* Card style for each entry */
-.list-group-item {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(26, 62, 191, 0.15);
-  margin-bottom: 22px;
-  padding: 22px 28px;
-  display: flex !important;
-  justify-content: space-between;
-  align-items: center;
-  transition: box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
-  cursor: default;
-}
-
-/* Hover effect with glowing shadow and lift */
-/* .list-group-item:hover {
-  box-shadow: 0 12px 28px rgba(26, 59, 177, 0.4), 0 0 10px #1a3ebf;
-  transform: translateY(-5px);
-} */
-
-/* Left side data in a 2-column grid */
-.list-group-item > div {
-  display: grid;
-  text-align: start;
-  grid-template-columns: max-content auto;
-  column-gap: 18px;
-  row-gap: 0px;
-  max-width: 85%;
-  font-size: 1.1rem;
-  color: #2a2a2a;
-  font-weight: 500;
-  line-height: 1.5;
-  border-radius: 10px;
-}
-
-/* Label styling */
-.list-group-item strong {
-  color: black;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  user-select: text;
-}
-
-/* Value styling */
-.list-group-item > div > *:not(strong) {
-  color: #444;
-  font-weight: 400;
-}
-
-/* Remove button styling */
-.list-group-item .btn-danger {
-  background: linear-gradient(135deg, #e63946, #a4161a);
-  border: none;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(164, 22, 26, 0.45);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-  font-size: 0.9rem;
-  user-select: none;
-  min-width: 100px;
-  color: #fff;
-}
-
-/* Remove button hover */
-.list-group-item .btn-danger:hover {
-  background: linear-gradient(135deg, #a4161a, #680c0f);
-  box-shadow: 0 2px 8px rgba(104, 12, 15, 0.7);
-}
-
-/* Success button styling */
-.list-group-item .btn-success {
-  background: linear-gradient(135deg, #28a745, #1e7e34);
-  border: none;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(30, 126, 52, 0.45);
-  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-  font-size: 0.9rem;
-  user-select: none;
-  min-width: 100px;
-  color: #fff;
-}
-
-/* Success button hover */
-.list-group-item .btn-success:hover {
-  background: linear-gradient(135deg, #1e7e34, #145c2c);
-  box-shadow: 0 2px 8px rgba(20, 92, 44, 0.7);
-}
-
-/* Back to form button styling */
-/* .btn-link {
-  display: block;
-  margin: 50px auto 0;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #1a3ebf;
-  text-decoration: none;
-  border-bottom: 3px solid transparent;
-  width: max-content;
-  transition: border-color 0.35s ease, color 0.35s ease;
-  cursor: pointer;
-  user-select: none;
-}
-
-.btn-link:hover {
-  color: #1030a6;
-  border-color: #1a3ebf;
-  text-decoration: none;
-  outline: none;
-} */
-
-/* Responsive tweaks */
-@media (max-width: 480px) {
-  .container {
-    padding: 20px 15px 40px;
-  }
-
-  .list-group-item > div {
-    grid-template-columns: 1fr;
-    row-gap: 12px;
-  }
-
-  .list-group-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .list-group-item .btn-danger {
-    width: 100%;
-    margin-top: 15px;
-    min-width: unset;
-  }
-}
-
+/* 📱 Mobile Layout */
 @media (max-width: 700px) {
-  .container {
-    padding: 20px 15px 40px;
-  }
-
-  .list-group-item > div {
-    grid-template-columns: 1fr;
-    row-gap: 12px;
-  }
-
-  .list-group-item {
+  .info-content {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    /* text-align: center; */
   }
 
-  .list-group-item .btn-danger {
-    width: 100%;
-    margin-top: 15px;
-    min-width: unset;
+  .info-details {
+    font-size: 0.9rem;
   }
-  .list-group-item .btn-success {
-    width: 100%;
-    margin-top: 15px;
-    min-width: unset;
+}
+
+@media (max-width: 400px) {
+  .info-details {
+    font-size: 0.75rem;
+  }
+
+  .button-group button {
+    min-width: 65px; /* keep them readable */
+    padding: 5px 5px;
+    font-weight: 550;
+    font-size: 0.8rem;
   }
 }

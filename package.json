@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@aws-sdk/client-s3": "^3.878.0",
+    "activity-tracker-client": "^1.0.0",
     "bcrypt": "^6.0.0",
     "country-state-city": "^3.2.1",
     "jsonwebtoken": "^9.0.2",

@@ -1,13 +1,16 @@
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // ✅ import toast
+import "react-toastify/dist/ReactToastify.css";
 import "./Navbar.css";
-import { ToastContainer, toast } from "react-toastify";
 
-export default function Navbar({
-  toggleTheme,
-  darkMode,
+const Navbar = ({
   isAuthenticated,
   setIsAuthenticated,
-}) {
+  darkMode,
+  toggleTheme,
+}) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -72,9 +75,11 @@ export default function Navbar({
   return (
     <nav className="navbar">
       <div className="nav-container">
+        {/* Logo left */}
         <div className="nav-logo">User App</div>
 
-        <div className="nav-links">
+        {/* Links center (desktop only) */}
+        <div className="nav-links desktop-links">
           <Link to="/" className="nav-link">
             Register
           </Link>
@@ -87,49 +92,66 @@ export default function Navbar({
               <Link to="/info" className="nav-link">
                 View Details
               </Link>
-              <button
-                onClick={confirmLogout}
-                className="nav-link"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={confirmLogout} className="nav-link logout-btn">
                 Logout
               </button>
             </>
           )}
         </div>
 
-        <div>
+        {/* Right: theme + hamburger */}
+        <div className="nav-right">
           <button className="btn-theme" onClick={toggleTheme}>
-            <span className="theme-icon">{darkMode ? "☀" : "🌙"}</span>
+            <span className="theme-icon">{darkMode ? "☀️" : "🌙"}</span>
+          </button>
+          <button
+            className="navbar-toggle"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            ☰
           </button>
         </div>
       </div>
+
+      {/* Sidebar for mobile */}
+      <div className={`sidebar ${menuOpen ? "open" : ""}`}>
+        <button className="close-btn" onClick={() => setMenuOpen(false)}>
+          ×
+        </button>
+        <Link to="/" className="nav-link" onClick={() => setMenuOpen(false)}>
+          Register
+        </Link>
+        {!isAuthenticated ? (
+          <Link
+            to="/login"
+            className="nav-link"
+            onClick={() => setMenuOpen(false)}
+          >
+            Login
+          </Link>
+        ) : (
+          <>
+            <Link
+              to="/info"
+              className="nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              View Details
+            </Link>
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                confirmLogout();
+              }}
+              className="nav-link logout-btn"
+            >
+              Logout
+            </button>
+          </>
+        )}
+      </div>
     </nav>
   );
-}
+};
 
-// import { Link, useLocation } from 'react-router-dom';
-
-// export default function Navbar() {
-//   const location = useLocation();
-
-//   return (
-//     <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-//       <div className="container-fluid">
-//         <Link className="navbar-brand fw-bold" to="/">User App</Link>
-//         <div>
-//           {location.pathname === '/' && (
-//             <Link className="nav-link text-white" to="/info">View details</Link>
-//           )}
-//           {location.pathname === '/info' && (
-//             <Link className="nav-link text-white" to="/">Back to Form</Link>
-//           )}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// }
+export default Navbar;
